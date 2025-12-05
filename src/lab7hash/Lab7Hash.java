@@ -221,40 +221,42 @@ public class Lab7Hash {
                     return;
                 }
 
-                resultsPanel.removeAll(); // Limpiar panel anterior
+            resultsPanel.removeAll(); // Limpiar panel anterior
 
-                String info = psnUsers.playerInfo(username);
+            String info = psnUsers.playerInfo(username);
 
-                JLabel infoLabel = new JLabel("<html>" + info.replace("\n", "<br>") + "</html>");
-                infoLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-                resultsPanel.add(infoLabel, BorderLayout.WEST);
-                resultsPanel.add(Box.createVerticalStrut(20));
+            JLabel infoLabel = new JLabel("<html>" + info.replace("\n", "<br>") + "</html>");
+            infoLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+            infoLabel.setAlignmentX(infoLabel.CENTER_ALIGNMENT);  // ← CENTRAR
+            resultsPanel.add(infoLabel);
+            resultsPanel.add(Box.createVerticalStrut(20));
 
-                java.util.ArrayList<PSNUsers.TrophyInfo> trophies = psnUsers.getTrophiesOf(username);
+            java.util.ArrayList<PSNUsers.TrophyInfo> trophies = psnUsers.getTrophiesOf(username);
 
-                for (PSNUsers.TrophyInfo t : trophies) {
+            for (PSNUsers.TrophyInfo t : trophies) {
 
-                    JPanel trophyPanel = new JPanel(new BorderLayout(10, 10));
+                JPanel trophyPanel = new JPanel(new BorderLayout(10, 10));
+                trophyPanel.setMaximumSize(new Dimension(600, 80));  // Opcional para que no se expanda raro
+                trophyPanel.setAlignmentX(trophyPanel.CENTER_ALIGNMENT);  // ← CENTRAR
 
-                    // Convertir bytes → ImageIcon
-                    ImageIcon icon = new ImageIcon(t.image);
-                    Image scaled = icon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
-                    icon = new ImageIcon(scaled);
+                ImageIcon icon = new ImageIcon(t.image);
+                Image scaled = icon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+                icon = new ImageIcon(scaled);
 
-                    JLabel imgLabel = new JLabel(icon);
+                JLabel imgLabel = new JLabel(icon);
 
-                    JLabel txtLabel = new JLabel("<html>"
-                            + "<b>" + t.type + "</b> — " + t.game + "<br>"
-                            + t.desc + "<br>"
-                            + "<i>" + t.date + "</i>"
-                            + "</html>");
+                JLabel txtLabel = new JLabel("<html>"
+                        + "<b>" + t.type + "</b> — " + t.game + "<br>"
+                        + t.desc + "<br>"
+                        + "<i>" + t.date + "</i>"
+                        + "</html>");
 
-                    trophyPanel.add(imgLabel, BorderLayout.WEST);
-                    trophyPanel.add(txtLabel, BorderLayout.CENTER);
+                trophyPanel.add(imgLabel, BorderLayout.WEST);
+                trophyPanel.add(txtLabel, BorderLayout.CENTER);
 
-                    resultsPanel.add(trophyPanel);
-                    resultsPanel.add(Box.createVerticalStrut(10));
-                }
+                resultsPanel.add(trophyPanel);
+                resultsPanel.add(Box.createVerticalStrut(10));
+            }
 
                 // Refrescar GUI
                 resultsPanel.revalidate();
