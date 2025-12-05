@@ -134,4 +134,75 @@ public class PSNUsers {
             return false;
         }
     }
+    public String playerInfo(String username) {
+        StringBuilder info = new StringBuilder();
+        long userPos = users.search(username);
+
+        if (userPos == -1) {
+            return "Error: Usuario '" + username + "' no encontrado en el sistema o está desactivado.";
+        }
+
+        try {
+            file.seek(userPos);
+            
+            String uName = file.readUTF();
+            int points = file.readInt();
+            int count = file.readInt();
+            boolean active = file.readBoolean();
+            
+            info.append("--- Información del Jugador ").append(uName).append(" ---\n");
+            info.append(String.format("Puntos Totales: %d\n", points));
+            info.append(String.format("Trofeos Totales: %d\n", count));
+            info.append(String.format("Estado Activo: %s\n", active ? "Sí" : "No (BORRADO)"));
+            info.append("\n");
+            
+            info.append("--- Lista de Trofeos ---\n");
+            trophiesFile.seek(0);
+            boolean foundTrophy = false;
+
+            while (trophiesFile.getFilePointer() < trophiesFile.length()) {
+                
+                String tUsername = trophiesFile.readUTF();
+                String tType = trophiesFile.readUTF();
+                String tGame = trophiesFile.readUTF();
+                String tName = trophiesFile.readUTF();
+                String tDate = trophiesFile.readUTF();
+                
+                int imageLength = trophiesFile.readInt();
+                
+                if (tUsername.equals(username)) {
+                    foundTrophy = true;
+                    trophiesFile.skipBytes(imageLength); 
+
+                    info.append(String.format("FECHA: %s | TIPO: %s | JUEGO: %s | DESCRIPCIÓN: %s [IMAGEN GUARDADA]\n", 
+                                                tDate, tType, tGame, tName));
+                } else {
+                    trophiesFile.skipBytes(imageLength);
+                }
+            }
+            
+            if (!foundTrophy) {
+                info.append("El usuario aún no tiene trofeos registrados.\n");
+            }
+            
+        } catch (Exception e) {
+            info.append("\nError al procesar la información del archivo: ").append(e.getMessage());
+            e.printStackTrace();
+        }
+        return info.toString();
+    }
+    
+
+    public void closeFiles() {
+        try {
+            if (file != null) {
+                file.close();
+            }
+            if (trophiesFile != null) {
+                trophiesFile.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
