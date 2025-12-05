@@ -124,7 +124,7 @@ public class PSNUsersGUI {
         panel.add(gameField);
         panel.add(new JLabel("Nombre del Trofeo:"));
         panel.add(nameField);
-        panel.add(new JLabel("Tipo de Trofeo:"));
+        panel.add(new JLabel("Tipo de Trofer o:"));
         panel.add(typeCombo);
         
         panel.add(new JLabel("Ruta de Imagen:"));
@@ -177,19 +177,23 @@ public class PSNUsersGUI {
     private JPanel createPlayerInfoPanel() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
         JTextField usernameField = new JTextField(20);
         JButton searchButton = new JButton("Buscar Info");
-        
-        JTextArea infoArea = new JTextArea(15, 60);
-        infoArea.setEditable(false);
-        infoArea.setFont(new Font("Monospaced", Font.PLAIN, 12)); 
-        
+
+        // Panel donde se mostrará texto + imágenes
+        JPanel resultsPanel = new JPanel();
+        resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
+
+        JScrollPane scrollPane = new JScrollPane(resultsPanel);
+        scrollPane.setPreferredSize(new Dimension(600, 400));
+
         inputPanel.add(new JLabel("Username a buscar:"));
         inputPanel.add(usernameField);
         inputPanel.add(searchButton);
 
         panel.add(inputPanel, BorderLayout.NORTH);
-        panel.add(new JScrollPane(infoArea), BorderLayout.CENTER);
+        panel.add(scrollPane, BorderLayout.CENTER);
 
         searchButton.addActionListener(e -> {
             String username = usernameField.getText().trim();
@@ -198,9 +202,44 @@ public class PSNUsersGUI {
                 return;
             }
 
+            resultsPanel.removeAll(); // Limpiar panel anterior
+
             String info = psnUsers.playerInfo(username);
-            infoArea.setText(info);
-            infoArea.setCaretPosition(0); 
+
+            JLabel infoLabel = new JLabel("<html>" + info.replace("\n", "<br>") + "</html>");
+            infoLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+            resultsPanel.add(infoLabel, BorderLayout.WEST);
+            resultsPanel.add(Box.createVerticalStrut(20));
+
+            java.util.ArrayList<PSNUsers.TrophyInfo> trophies = psnUsers.getTrophiesOf(username);
+
+            for (PSNUsers.TrophyInfo t : trophies) {
+
+                JPanel trophyPanel = new JPanel(new BorderLayout(10, 10));
+
+                // Convertir bytes → ImageIcon
+                ImageIcon icon = new ImageIcon(t.image);
+                Image scaled = icon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+                icon = new ImageIcon(scaled);
+
+                JLabel imgLabel = new JLabel(icon);
+
+                JLabel txtLabel = new JLabel("<html>"
+                        + "<b>" + t.type + "</b> — " + t.game + "<br>"
+                        + t.desc + "<br>"
+                        + "<i>" + t.date + "</i>"
+                        + "</html>");
+
+                trophyPanel.add(imgLabel, BorderLayout.WEST);
+                trophyPanel.add(txtLabel, BorderLayout.CENTER);
+
+                resultsPanel.add(trophyPanel);
+                resultsPanel.add(Box.createVerticalStrut(10));
+            }
+
+            // Refrescar GUI
+            resultsPanel.revalidate();
+            resultsPanel.repaint();
         });
 
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));

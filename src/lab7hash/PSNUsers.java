@@ -5,6 +5,7 @@
 package lab7hash;
 
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 
 public class PSNUsers {
     private RandomAccessFile trophiesFile;
@@ -20,6 +21,10 @@ public class PSNUsers {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public static class TrophyInfo {
+        public String type, game, desc, date;
+        public byte[] image;
     }
 
     private void reloadHashTable() {
@@ -163,19 +168,12 @@ public class PSNUsers {
             while (trophiesFile.getFilePointer() < trophiesFile.length()) {
                 
                 String tUsername = trophiesFile.readUTF();
-                String tType = trophiesFile.readUTF();
-                String tGame = trophiesFile.readUTF();
-                String tName = trophiesFile.readUTF();
-                String tDate = trophiesFile.readUTF();
                 
                 int imageLength = trophiesFile.readInt();
                 
                 if (tUsername.equals(username)) {
                     foundTrophy = true;
                     trophiesFile.skipBytes(imageLength); 
-
-                    info.append(String.format("FECHA: %s | TIPO: %s | JUEGO: %s | DESCRIPCIÓN: %s [IMAGEN GUARDADA]\n", 
-                                                tDate, tType, tGame, tName));
                 } else {
                     trophiesFile.skipBytes(imageLength);
                 }
@@ -204,5 +202,37 @@ public class PSNUsers {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public ArrayList<TrophyInfo> getTrophiesOf(String username) {
+        ArrayList<TrophyInfo> list = new ArrayList<>();
+
+        try (RandomAccessFile raf = new RandomAccessFile("trophies.psn", "r")) {
+            while (raf.getFilePointer() < raf.length()) {
+
+                String u = raf.readUTF();
+                String type = raf.readUTF();
+                String game = raf.readUTF();
+                String desc = raf.readUTF();
+                String date = raf.readUTF();
+
+                int size = raf.readInt();
+                byte[] img = new byte[size];
+                raf.readFully(img);
+
+                if (u.equals(username)) {
+                    TrophyInfo t = new TrophyInfo();
+                    t.type = type;
+                    t.game = game;
+                    t.desc = desc;
+                    t.date = date;
+                    t.image = img;
+                    list.add(t);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
     }
 }
