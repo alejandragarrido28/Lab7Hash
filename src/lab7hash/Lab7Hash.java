@@ -4,10 +4,7 @@
  */
 package lab7hash;
 
-/**
- *
- * @author User
- */
+
 public class Lab7Hash {
 
     /**

@@ -4,10 +4,7 @@
  */
 package lab7hash;
 
-/**
- *
- * @author Gabriel
- */
+
 public enum Trophy {
     PLATINO(5),
     ORO(3),

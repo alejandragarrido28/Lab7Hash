@@ -4,10 +4,6 @@
  */
 package lab7hash;
 
-/**
- *
- * @author Gabriel
- */
 public class HashTable {
     
     private Entry head;

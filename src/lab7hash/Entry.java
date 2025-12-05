@@ -4,10 +4,7 @@
  */
 package lab7hash;
 
-/**
- *
- * @author Gabriel
- */
+
 public class Entry {
     
     String username;
